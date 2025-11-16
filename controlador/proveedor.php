@@ -1,4 +1,7 @@
 <?php
+// ==========================
+// CORS
+// ==========================
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type, cedula");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
@@ -7,8 +10,6 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
     http_response_code(200);
     exit();
 }
-
-
 
 header("Content-Type: application/json");
 
@@ -21,16 +22,12 @@ $usuario = new Usuarios();
 
 $CLAVE_DESENCRIPTACION = null;
 
-// Headers
-$encabezados = getallheaders();
+// ==========================
+// HEADERS
+// ==========================
 
+// Convertimos TODOS los headers a minúscula de una sola vez
 $encabezados = array_change_key_case(getallheaders(), CASE_LOWER);
-
-if (!isset($encabezados['cedula'])) {
-    echo json_encode(["error" => "Acceso no autorizado - Falta encabezado 'cedula'"]);
-    exit();
-}
-
 
 // Validar header cedula
 if (!isset($encabezados['cedula'])) {
@@ -46,26 +43,24 @@ if ($CLAVE_DESENCRIPTACION === false) {
     exit();
 }
 
-// Función AES
+// ==========================
+// FUNCION AES
+// ==========================
 function Desencriptar_BODY($JSON, $clave)
 {
     $cifrado = "aes-256-ecb";
-    $clave_ajustada = $clave;
 
-    $JSON_desencriptado = openssl_decrypt(
+    return openssl_decrypt(
         base64_decode($JSON),
         $cifrado,
-        $clave_ajustada,
+        $clave,
         OPENSSL_RAW_DATA
     );
-
-    return $JSON_desencriptado;
 }
 
-
-// =============================
+// ==========================
 // MANEJO DE OPERACIONES
-// =============================
+// ==========================
 if (!isset($_GET["op"])) {
     echo json_encode(["error" => "Debe indicar la operación (op)"]);
     exit();
@@ -74,7 +69,6 @@ if (!isset($_GET["op"])) {
 $op = $_GET["op"];
 $body = [];
 
-// SOLO desencriptar si la operación requiere datos
 $operaciones_con_body = ["Insertar", "Actualizar", "Eliminar", "ObtenerPorCedula"];
 
 if (in_array($op, $operaciones_con_body)) {
@@ -95,9 +89,9 @@ if (in_array($op, $operaciones_con_body)) {
     }
 }
 
-// =============================
+// ==========================
 // CRUD OPERATIONS
-// =============================
+// ==========================
 switch ($op) {
 
     case "ObtenerTodos":
