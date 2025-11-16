@@ -1,0 +1,7 @@
+{
+  "name": "proyectoweb/api",
+  "description": "API en PHP para Railway",
+  "require": {
+    "ext-pdo": "*"
+  }
+}
