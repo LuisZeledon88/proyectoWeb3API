@@ -8,10 +8,11 @@ class Conectar {
     protected function conectar_bd() {
         try {
             // DATOS DEL HOSTING
-            $host = "localhost";
-            $dbname = "zijinkjae_bd_ferreteria";
-            $user = "zijinkjae_bd_ferreteria";
-            $pass = "dWna6ecR5LCzCZZ5qPhj";  
+            $host = "mysql.railway.internal";
+            $dbname = "railway";
+            $user = "root";
+            $pass = "YilaAliWBNXDbfTJbIwHbGnhdsvQMwuM";
+            $port = 3306;
 
             // Conexión PDO
             $this->conexion_bd = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
