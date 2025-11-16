@@ -14,6 +14,14 @@ $CLAVE_DESENCRIPTACION = null;
 // Headers
 $encabezados = getallheaders();
 
+$encabezados = array_change_key_case(getallheaders(), CASE_LOWER);
+
+if (!isset($encabezados['cedula'])) {
+    echo json_encode(["error" => "Acceso no autorizado - Falta encabezado 'cedula'"]);
+    exit();
+}
+
+
 // Validar header cedula
 if (!isset($encabezados['cedula'])) {
     echo json_encode(["error" => "Acceso no autorizado - Falta encabezado 'cedula'"]);
