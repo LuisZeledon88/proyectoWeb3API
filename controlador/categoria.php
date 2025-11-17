@@ -1,54 +1,59 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type, cedula");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Credentials: true");
 
-// Si es preflight (OPTIONS), cortar aquí
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// Respuesta JSON
 header("Content-Type: application/json");
 
-// Incluir conexión y modelo
+// ===============================
+// ARCHIVOS DEL MODELO
+// ===============================
 require_once("../configuracion/conexion.php");
 require_once("../modelos/Categoria.php");
 
-// Instancia del modelo
 $categoria = new Categoria();
 
-// Obtener método HTTP
 $metodo = $_SERVER["REQUEST_METHOD"];
-
-// Obtener cuerpo JSON (si lo hay)
 $body = json_decode(file_get_contents("php://input"), true);
 
-// RUTA SIMPLE: /categoria?id=XXXX
-$id = isset($_GET["id"]) ? $_GET["id"] : null;
+// Ruta: /categoria.php?id=XX
+$id = $_GET["id"] ?? null;
 
+// ===============================
+// RUTEO REST COMPLETO
+// ===============================
 switch ($metodo) {
 
-    // GET → listar u obtener
-
+    // ============================
+    // GET → listar o traer uno
+    // ============================
     case "GET":
 
         if ($id) {
-            // Obtener por id
             $datos = $categoria->obtener_categoria_por_id($id);
-            echo json_encode($datos);
+
+            if ($datos) {
+                echo json_encode($datos);
+            } else {
+                echo json_encode(["error" => "No se encontró la categoría"]);
+            }
+
         } else {
-            // Listar todas
             $datos = $categoria->obtener_categorias();
             echo json_encode($datos);
         }
         break;
 
-    
+
+    // ============================
     // POST → insertar
-    
+    // ============================
     case "POST":
 
         if (empty($body["id"]) || empty($body["nombre"])) {
@@ -56,20 +61,20 @@ switch ($metodo) {
             exit();
         }
 
-        // Validar ID duplicado
-        $existe = $categoria->obtener_categoria_por_id($body["id"]);
-        if ($existe) {
+        // Revisar duplicado
+        if ($categoria->obtener_categoria_por_id($body["id"])) {
             echo json_encode(["error" => "El ID ya existe"]);
             exit();
         }
 
         $categoria->insertar_categoria($body["id"], $body["nombre"]);
-        echo json_encode(["Correcto" => "Categoría creada"]);
+        echo json_encode(["success" => true, "mensaje" => "Categoría creada"]);
         break;
 
-    
+
+    // ============================
     // PUT → actualizar
-    
+    // ============================
     case "PUT":
 
         if (empty($body["id"]) || empty($body["nombre"])) {
@@ -78,25 +83,27 @@ switch ($metodo) {
         }
 
         $categoria->actualizar_categoria($body["id"], $body["nombre"]);
-        echo json_encode(["Correcto" => "Categoría actualizada"]);
+        echo json_encode(["success" => true, "mensaje" => "Categoría actualizada"]);
         break;
 
+
+    // ============================
     // DELETE → eliminar
-    
+    // ============================
     case "DELETE":
 
         if (!$id) {
-            echo json_encode(["error" => "Debe enviar id en la URL"]);
+            echo json_encode(["error" => "Debe enviar id por URL"]);
             exit();
         }
 
         $categoria->eliminar_categoria($id);
-        echo json_encode(["Correcto" => "Categoría eliminada"]);
+        echo json_encode(["success" => true, "mensaje" => "Categoría eliminada"]);
         break;
+
 
     default:
         echo json_encode(["error" => "Método no permitido"]);
         break;
 }
-
 ?>
