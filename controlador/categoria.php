@@ -11,9 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 header("Content-Type: application/json");
 
-// ===============================
-// ARCHIVOS DEL MODELO
-// ===============================
 require_once("../configuracion/conexion.php");
 require_once("../modelos/Categoria.php");
 
@@ -22,17 +19,11 @@ $categoria = new Categoria();
 $metodo = $_SERVER["REQUEST_METHOD"];
 $body = json_decode(file_get_contents("php://input"), true);
 
-// Ruta: /categoria.php?id=XX
 $id = $_GET["id"] ?? null;
 
-// ===============================
-// RUTEO REST COMPLETO
-// ===============================
+
 switch ($metodo) {
 
-    // ============================
-    // GET → listar o traer uno
-    // ============================
     case "GET":
 
         if ($id) {
@@ -51,9 +42,6 @@ switch ($metodo) {
         break;
 
 
-    // ============================
-    // POST → insertar
-    // ============================
     case "POST":
 
         if (empty($body["id"]) || empty($body["nombre"])) {
@@ -61,7 +49,6 @@ switch ($metodo) {
             exit();
         }
 
-        // Revisar duplicado
         if ($categoria->obtener_categoria_por_id($body["id"])) {
             echo json_encode(["error" => "El ID ya existe"]);
             exit();
@@ -72,9 +59,6 @@ switch ($metodo) {
         break;
 
 
-    // ============================
-    // PUT → actualizar
-    // ============================
     case "PUT":
 
         if (empty($body["id"]) || empty($body["nombre"])) {
@@ -86,10 +70,6 @@ switch ($metodo) {
         echo json_encode(["success" => true, "mensaje" => "Categoría actualizada"]);
         break;
 
-
-    // ============================
-    // DELETE → eliminar
-    // ============================
     case "DELETE":
 
         if (!$id) {
