@@ -1,7 +1,4 @@
 <?php
-// ==========================
-// CORS
-// ==========================
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type, cedula");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
@@ -22,20 +19,15 @@ $usuario = new Usuarios();
 
 $CLAVE_DESENCRIPTACION = null;
 
-// ==========================
-// HEADERS
-// ==========================
 
-// Convertimos TODOS los headers a minúscula de una sola vez
+
 $encabezados = array_change_key_case(getallheaders(), CASE_LOWER);
 
-// Validar header cedula
 if (!isset($encabezados['cedula'])) {
     echo json_encode(["error" => "Acceso no autorizado - Falta encabezado 'cedula'"]);
     exit();
 }
 
-// Buscar clave
 $CLAVE_DESENCRIPTACION = $usuario->ObtenerLlavePorCedula($encabezados['cedula']);
 
 if ($CLAVE_DESENCRIPTACION === false) {
@@ -43,9 +35,6 @@ if ($CLAVE_DESENCRIPTACION === false) {
     exit();
 }
 
-// ==========================
-// FUNCION AES
-// ==========================
 function Desencriptar_BODY($JSON, $clave)
 {
     $cifrado = "aes-256-ecb";
@@ -58,9 +47,6 @@ function Desencriptar_BODY($JSON, $clave)
     );
 }
 
-// ==========================
-// MANEJO DE OPERACIONES
-// ==========================
 if (!isset($_GET["op"])) {
     echo json_encode(["error" => "Debe indicar la operación (op)"]);
     exit();
@@ -89,9 +75,6 @@ if (in_array($op, $operaciones_con_body)) {
     }
 }
 
-// ==========================
-// CRUD OPERATIONS
-// ==========================
 switch ($op) {
 
     case "ObtenerTodos":
